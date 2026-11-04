@@ -39,6 +39,7 @@ public class MqttConnection {
             MqttMessage message = new MqttMessage(text.getBytes());
             message.setQos(1);
             client.publish(topic, message);
+
         } catch (MqttException e) {
             System.out.println("Eroare la publicare pe " + topic + ": " + e.getMessage());
         }
@@ -52,7 +53,7 @@ public class MqttConnection {
         client.subscribe(topicFilter, 1, (topic, message) -> inbox.put(new String(message.getPayload())));
         System.out.println("Abonat la " + topicFilter);
     }
-
+//ssatr/kris-simi/devices/device-1/commands
     public void disconnect() throws MqttException {
         client.disconnect();
         client.close();

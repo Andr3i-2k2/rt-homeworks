@@ -27,12 +27,79 @@ public class MessageProcessor implements Runnable {
 
     @Override
     public void run() {
-        // TODO 4: într-o buclă:
-        //   - preluați un mesaj: inbox.take()
-        //   - salvați mesajul în fișierul CSV: storage.append(kind, mesaj)
-        //     (CsvStorage este gata implementată)
-        //   - actualizați dashboard-ul, în funcție de kind
-        //   - alarmele și confirmările se afișează imediat în consolă
-        //   - un mesaj greșit (format invalid) nu trebuie să oprească thread-ul
+        while (!Thread.currentThread().isInterrupted()) {
+            try {
+
+                String mesaj = inbox.take();
+
+                try {
+
+                    String[] parts = mesaj.split(";", -1);
+
+
+                    switch (kind) {
+                        case "telemetry":
+                            if (parts.length != 3) {
+                                throw new IllegalArgumentException(
+                                        "Format telemetry invalid");
+                            }
+
+                            dashboard.updateTelemetry(
+                                    parts[0],
+                                    Long.parseLong(parts[1]),
+                                    Double.parseDouble(parts[2])
+                            );
+                            break;
+
+                        case "alarm":
+                            if (parts.length != 4) {
+                                throw new IllegalArgumentException(
+                                        "Format alarm invalid");
+                            }
+
+                            dashboard.updateAlarm(
+                                    parts[0],
+                                    Long.parseLong(parts[1]),
+                                    Double.parseDouble(parts[2])
+                            );
+
+                            System.out.println("[ALARM] " + mesaj);
+                            break;
+
+                        case "status":
+                            if (parts.length != 3) {
+                                throw new IllegalArgumentException(
+                                        "Format status invalid");
+                            }
+
+                            dashboard.updateStatus(
+                                    parts[0],
+                                    Long.parseLong(parts[1]),
+                                    parts[2]
+                            );
+
+                            System.out.println("[STATUS] " + mesaj);
+                            break;
+
+                        default:
+                            throw new IllegalArgumentException(
+                                    "Tip mesaj necunoscut: " + kind);
+                    }
+
+
+                    storage.append(kind, mesaj);
+
+                } catch (Exception ex) {
+                    System.err.println(
+                            "[ERROR] Mesaj invalid (" + kind + "): "
+                                    + mesaj + " | " + ex.getMessage()
+                    );
+                }
+
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
     }
 }
