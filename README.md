@@ -1,4 +1,4 @@
-# SSATR – Teme de laboratorr
+# SSATR – Teme de laborator
 
 Teme pentru disciplina **Structuri Software pentru Aplicații de Timp Real (SSATR)**, program de master.
 
